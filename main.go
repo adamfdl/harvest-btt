@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/adamfdl/harvest-tb/cmd"
+	"github.com/adamfdl/harvest-btt/cmd"
 )
 
 func main() {

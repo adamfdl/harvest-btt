@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/adamfdl/harvest-tb/harvest"
+	"github.com/adamfdl/harvest-btt/harvest"
 	"github.com/spf13/cobra"
 )
 

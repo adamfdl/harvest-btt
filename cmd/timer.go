@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/adamfdl/harvest-tb/harvest"
+	"github.com/adamfdl/harvest-btt/harvest"
 	"github.com/spf13/cobra"
 )
 
@@ -43,7 +43,7 @@ func (r *timerCmd) timer(*cobra.Command, []string) {
 }
 
 func getIconPath(isActive bool) string {
-	basePath := "/Users/adamfadhil/Projects/go/src/github.com/adamfdl/harvest-tb/resources/harvest-"
+	basePath := "/Users/adamfadhil/Projects/go/src/github.com/adamfdl/harvest-btt/resources/harvest-"
 	if isActive {
 		return fmt.Sprintf("%s%s", basePath, "active.png")
 	}
