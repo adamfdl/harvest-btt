@@ -25,18 +25,51 @@ func newTimerCmd() *timerCmd {
 }
 
 func (r *timerCmd) timer(*cobra.Command, []string) {
-	if r.isToggle {
-		timer, isActive := harvest.GetToggledTimer()
+	h := harvest.NewHarvestAPI()
+	timeEntries, err := h.GetTimeEntriesBetween(startOfWeek(), endOfWeek())
+	if err != nil {
 		fmt.Println(bttData{
-			Text:            timer,
-			IconPath:        getIconPath(isActive),
-			BackgroundColor: "0,0,0,0",
+			Text: fmt.Sprintf("Error!"),
 		})
+		return
+	}
+
+	if r.isToggle {
+		if timeEntries.TimeEntries[0].IsRunning {
+			timeEntry, err := h.StopTimeEntry(timeEntries.TimeEntries[0].ID)
+			if err != nil {
+				fmt.Println(bttData{
+					Text: fmt.Sprintf("Error!"),
+				})
+				return
+			}
+			if !timeEntry.IsRunning {
+				fmt.Println(bttData{
+					Text:            timeEntry.KitchenTimer(),
+					IconPath:        getIconPath(timeEntries.TimeEntries[0].IsRunning),
+					BackgroundColor: "0,0,0,0",
+				})
+			}
+		} else {
+			timeEntry, err := h.RestartTimeEntry(timeEntries.TimeEntries[0].ID)
+			if err != nil {
+				fmt.Println(bttData{
+					Text: fmt.Sprintf("Error!"),
+				})
+				return
+			}
+			if timeEntry.IsRunning {
+				fmt.Println(bttData{
+					Text:            timeEntry.KitchenTimer(),
+					IconPath:        getIconPath(timeEntries.TimeEntries[0].IsRunning),
+					BackgroundColor: "0,0,0,0",
+				})
+			}
+		}
 	} else {
-		timer, isActive := harvest.GetLatestTimer()
 		fmt.Println(bttData{
-			Text:            timer,
-			IconPath:        getIconPath(isActive),
+			Text:            timeEntries.TimeEntries[0].KitchenTimer(),
+			IconPath:        getIconPath(timeEntries.TimeEntries[0].IsRunning),
 			BackgroundColor: "0,0,0,0",
 		})
 	}

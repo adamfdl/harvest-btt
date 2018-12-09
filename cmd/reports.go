@@ -2,8 +2,10 @@ package cmd
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/adamfdl/harvest-btt/harvest"
+	"github.com/grsmv/goweek"
 	"github.com/spf13/cobra"
 )
 
@@ -26,13 +28,53 @@ func newReportCmd() *reportCmd {
 }
 
 func (r *reportCmd) getReports(*cobra.Command, []string) {
-	if r.isNonBillables {
+	h := harvest.NewHarvestAPI()
+	timeEntries, err := h.GetTimeEntriesBetween(startOfWeek(), endOfWeek())
+	if err != nil {
 		fmt.Println(bttData{
-			Text: fmt.Sprintf("Non Billable: %.2f", harvest.GetNonBillables()),
+			Text: fmt.Sprintf("Error!"),
 		})
-	} else {
-		fmt.Println(bttData{
-			Text: fmt.Sprintf("Billable: %.2f", harvest.GetBillables()),
-		})
+		return
 	}
+
+	var hours float64
+	if r.isNonBillables {
+		hours = getNonBillablesFromTimeEntries(timeEntries.TimeEntries)
+	} else {
+		hours = getBillablesFromTimeEntries(timeEntries.TimeEntries)
+	}
+
+	fmt.Println(bttData{
+		Text: fmt.Sprintf("Billable: %.2f", hours),
+	})
+}
+
+func getBillablesFromTimeEntries(timeEntries []harvest.TimeEntry) float64 {
+	var billables float64
+	for _, timeEntry := range timeEntries {
+		if timeEntry.Billable {
+			billables += timeEntry.Hours
+		}
+	}
+	return billables
+}
+
+func getNonBillablesFromTimeEntries(timeEntries []harvest.TimeEntry) float64 {
+	var nonBillables float64
+	for _, timeEntry := range timeEntries {
+		if !timeEntry.Billable {
+			nonBillables += timeEntry.Hours
+		}
+	}
+	return nonBillables
+}
+
+func startOfWeek() time.Time {
+	week, _ := goweek.NewWeek(time.Now().ISOWeek())
+	return week.Days[0]
+}
+
+func endOfWeek() time.Time {
+	week, _ := goweek.NewWeek(time.Now().AddDate(0, 0, 7).ISOWeek())
+	return week.Days[6]
 }
